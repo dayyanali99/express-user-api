@@ -1,0 +1,8 @@
+2022-10-12	5:53:29 pm	38c6bce9-10cc-48ae-a926-de49499487ab	Error: Not Allowed by CORS
+2022-10-12	6:46:19 pm	08804903-b543-4a12-8af7-80c7514b9c84	ForbiddenError: Forbidden
+2022-10-12	6:47:38 pm	080d408a-80aa-44aa-aed5-69de719423f3	ForbiddenError: Forbidden
+2022-10-12	6:50:27 pm	5c808cc8-2cb6-4429-b7c6-0ea688290fc0	ForbiddenError: Forbidden
+2022-10-12	6:51:04 pm	7827d815-a746-4dc1-9c0d-9e4d881b2d00	ForbiddenError: Forbidden
+2022-10-15	4:25:39 pm	6ee45332-59ea-4567-b3f1-98f1b61b98a6	TypeError: req.getHeader is not a function
+2022-10-15	4:27:12 pm	36f2be06-ccda-4dbb-b182-fdfcf76aca81	TypeError: req.hasHeader is not a function
+2022-10-15	4:29:51 pm	a03a2805-4ef2-4f6b-9f7b-c116647482f5	ReferenceError: decoded is not defined
