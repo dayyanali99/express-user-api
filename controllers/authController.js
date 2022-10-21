@@ -1,14 +1,6 @@
-const usersDB = {
-  users: require("../model/users.json"),
-  setUsers: function data(data) {
-    this.users = data;
-  },
-};
+const User = require("../model/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-require("dotenv").config();
-const fsPromises = require("fs").promises;
-const path = require("path");
 const date = require("date-fns");
 
 const handleLogin = async (req, res) => {
@@ -19,7 +11,7 @@ const handleLogin = async (req, res) => {
       .json({ message: `Username and Password are required` });
   }
 
-  const foundUser = usersDB.users.find((person) => person.username === user);
+  const foundUser = await User.findOne({ username: user }).exec();
   if (!foundUser) return res.sendStatus(401);
 
   // evaluate password
@@ -28,32 +20,15 @@ const handleLogin = async (req, res) => {
     return res.sendStatus(401);
   }
 
-  const roles = Object.values(foundUser.roles);
   // create JWTs
-  const accessToken = jwt.sign(
-    { userInfo: { username: foundUser.username, roles } },
-    process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: "30s" }
-  );
-  const refreshToken = jwt.sign(
-    { username: foundUser.username },
-    process.env.REFRESH_TOKEN_SECRET,
-    { expiresIn: "1d" }
-  );
-
-  const otherUsers = usersDB.users.filter(
-    (person) => person.username !== foundUser.username
-  );
+  const roles = Object.values(foundUser.roles);
+  const accessToken = generateAccessToken(foundUser, roles);
+  const refreshToken = generateRefreshToken(foundUser);
 
   // saving refreshToken with current user
-  const currentUser = { ...foundUser, refreshToken };
-  usersDB.setUsers([...otherUsers, currentUser]);
-  await fsPromises.writeFile(
-    path.join(__dirname, "..", "model", "users.json"),
-    JSON.stringify(usersDB.users)
-  );
-
-  date.hoursToMilliseconds(2);
+  foundUser.refreshToken = refreshToken;
+  const result = await foundUser.save();
+  console.log(result);
 
   res.cookie("jwt", refreshToken, {
     httpOnly: true,
@@ -63,6 +38,23 @@ const handleLogin = async (req, res) => {
   });
   res.json({ accessToken });
 };
+
+// HELPER METHODS
+function generateAccessToken(user, roles) {
+  return jwt.sign(
+    { userInfo: { username: user.username, roles } },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: "60s" }
+  );
+}
+
+function generateRefreshToken(user) {
+  return jwt.sign(
+    { username: user.username },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: "1d" }
+  );
+}
 
 module.exports = {
   handleLogin,

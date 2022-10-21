@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const app = express();
 const path = require("path");
@@ -8,14 +9,26 @@ const { errorHandler } = require("./middleware/errorHandler");
 const verifyJWT = require("./middleware/verifyJWT");
 const cookieParser = require("cookie-parser");
 const credentials = require("./middleware/credentials");
+const rootRouter =  require("./routes/root");
+const registerRouter = require("./routes/register");
+const authRouter = require("./routes/auth");
+const refreshRouter = require("./routes/refresh");
+const logoutRouter = require("./routes/logout");
+const employeesRouter = require('./routes/api/employees')
+
+const mongoose = require("mongoose");
+const connectDB = require("./config/dbConn");
 const PORT = process.env.PORT || 3500;
+
+// connect to DB
+connectDB();
 
 // custom middleware logger
 app.use(logger);
 
 // Handle credentials check before CORS!
 // and fetch cookies credentials requirement
-app.use(credentials)
+app.use(credentials);
 
 // cors middleware
 app.use(cors(corsOptions));
@@ -33,15 +46,15 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 // Routes
-app.use("/", require("./routes/root"));
-app.use("/register", require("./routes/register"));
-app.use("/auth", require("./routes/auth"));
-app.use("/refresh", require("./routes/refresh"));
-app.use("/logout", require("./routes/logout"));
+app.use("/", rootRouter);
+app.use("/register", registerRouter);
+app.use("/auth", authRouter);
+app.use("/refresh", refreshRouter);
+app.use("/logout", logoutRouter);
 
 // Employees route protected by JWT
 app.use(verifyJWT);
-app.use("/employees", require("./routes/api/employees"));
+app.use("/employees", employeesRouter);
 
 app.all("*", (req, res) => {
   res.status(404);
@@ -56,4 +69,7 @@ app.all("*", (req, res) => {
 
 app.use(errorHandler);
 
-app.listen(PORT, () => console.log(`Server running at ${PORT}`));
+mongoose.connection.once("open", () => {
+  console.log("connected to mongodb");
+  app.listen(PORT, () => console.log(`Server running at ${PORT}`));
+});

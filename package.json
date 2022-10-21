@@ -1,5 +1,5 @@
 {
-  "name": "12tut_user_roles",
+  "name": "express-final-api",
   "version": "1.0.0",
   "description": "Express Server tutorial",
   "main": "server.js",
@@ -17,6 +17,7 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.6.5",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
